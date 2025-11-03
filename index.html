@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jonas Frei - Interactive 3D CV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+        }
+        .center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .center-text h1 {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #f4c430;
+            text-shadow: 0 0 20px rgba(244, 196, 48, 0.5);
+            margin-bottom: 0.5rem;
+        }
+        .center-text p {
+            font-size: 1.5rem;
+            color: #f4c430;
+            opacity: 0.8;
+        }
+        .center-text .instruction {
+            font-size: 0.9rem;
+            opacity: 0.6;
+            margin-top: 1rem;
+        }
+        .info-panel {
+            position: absolute;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 2rem;
+            overflow-y: auto;
+            z-index: 20;
+            border-left: 4px solid #f4c430;
+            transition: right 0.3s ease;
+        }
+        .info-panel.active {
+            right: 0;
+        }
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            color: #f4c430;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-btn:hover {
+            color: #ffd700;
+        }
+        .info-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .info-title {
+            font-size: 2rem;
+            color: #f4c430;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+        .info-item {
+            border-left: 2px solid #f4c430;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .info-item h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .info-item .role {
+            color: #f4c430;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+        .info-item .period {
+            color: #9ca3af;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .info-item ul {
+            list-style: none;
+            margin-top: 0.5rem;
+        }
+        .info-item ul li {
+            font-size: 0.9rem;
+            color: #d1d5db;
+            margin-bottom: 0.3rem;
+        }
+        .info-item ul li:before {
+            content: "• ";
+            color: #f4c430;
+        }
+        .contact-info {
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            color: #f4c430;
+            font-size: 0.9rem;
+            z-index: 10;
+        }
+        .contact-info p {
+            margin-bottom: 0.3rem;
+        }
+        .instructions {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            color: #f4c430;
+            font-size: 0.9rem;
+            text-align: right;
+            opacity: 0.6;
+            z-index: 10;
+        }
+        .madness-quote {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(244, 196, 48, 0.1);
+            border: 1px solid #f4c430;
+            border-radius: 8px;
+        }
+        .madness-quote p {
+            color: #f4c430;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    
+    <div class="center-text">
+        <h1>Jonas Frei</h1>
+        <p>Business Psychology Student</p>
+        <p class="instruction">Klick auf die Sphären für mehr Info</p>
+    </div>
+
+    <div id="info-panel" class="info-panel">
+        <button class="close-btn" onclick="closePanel()">×</button>
+        <div id="panel-content"></div>
+    </div>
+
+    <div class="contact-info">
+        <p>📧 frei-jonas@gmx.net</p>
+        <p>📱 +41 78 705 58 91</p>
+        <p>📍 Buchrain, LU</p>
+    </div>
+
+    <div class="instructions" id="instructions">
+        <p>🖱️ Klick auf die Sphären</p>
+        <p>🌀 Die Experience rotiert automatisch</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const sphereData = {
+            experience: {
+                title: 'Experience',
+                icon: '💼',
+                color: 0xf4c430,
+                content: [
+                    { title: 'Grand Hotel National Luzern', role: 'Event Assistant', period: 'Aug 2024 - Sep 2024', details: ['Event Organisation', 'Menü- & Sitzpläne', 'Raumplanung'] },
+                    { title: 'Migros Luzern', role: 'Allrounder Verkauf', period: 'Apr 2024 - Jul 2025', details: ['Warenpräsentation', 'Kundenberatung', 'Qualitätskontrolle'] },
+                    { title: 'Grand Hotel National', role: 'Praktikant Kaufmann', period: 'Aug 2023 - Jul 2024', details: ['Event Management', 'HR & Finance', 'Rezeption'] }
+                ]
+            },
+            education: {
+                title: 'Education',
+                icon: '🎓',
+                color: 0xf4c430,
+                content: [
+                    { title: 'Hochschule Luzern', role: 'Bachelor Business Psychology', period: 'Sep 2025 - Jul 2029', details: ['Berufsbegleitend', 'Markt- & Konsumentenpsychologie'] },
+                    { title: 'Wirtschaftsmittelschule Luzern', role: 'Kaufmann EFZ mit BM', period: 'Aug 2020 - Jul 2023', details: ['Wirtschaftsmaturität', 'Kaufmännische Ausbildung'] }
+                ]
+            },
+            languages: {
+                title: 'Languages',
+                icon: '🗣️',
+                color: 0xf4c430,
+                content: [
+                    { title: 'Deutsch', role: 'Muttersprache', details: [] },
+                    { title: 'Englisch', role: 'B2 First Zertifikat', details: [] },
+                    { title: 'Französisch', role: 'B2 DELF Zertifikat', details: [] }
+                ]
+            },
+            skills: {
+                title: 'Skills & Passion',
+                icon: '⚡',
+                color: 0xf4c430,
+                content: [
+                    { title: 'Wirtschaftspsychologie', role: 'Arbeitspsychologie, Kundenpsychologie', details: ['Markenverständnis', 'Community Building', 'Kommunikation'] },
+                    { title: 'Event & Hospitality', role: 'Grand Hotel Erfahrung', details: ['Event Management', 'Kundenservice', 'Organisation'] },
+                    { title: 'Leidenschaft', role: 'Marketing, Design, Product Management', details: ['Brand Building', 'Kreativität', 'Jung & hungrig'] }
+                ]
+            }
+        };
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a2332);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 8;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const centerGeometry = new THREE.SphereGeometry(1, 32, 32);
+        const centerMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0xf4c430,
+            emissive: 0xf4c430,
+            emissiveIntensity: 0.3,
+            shininess: 100
+        });
+        const centerSphere = new THREE.Mesh(centerGeometry, centerMaterial);
+        scene.add(centerSphere);
+
+        const spheres = [];
+        const positions = [
+            { x: 3, y: 2, z: 0 },
+            { x: -3, y: 2, z: 0 },
+            { x: 3, y: -2, z: 0 },
+            { x: -3, y: -2, z: 0 }
+        ];
+
+        Object.keys(sphereData).forEach((key, i) => {
+            const geometry = new THREE.SphereGeometry(0.6, 32, 32);
+            const material = new THREE.MeshPhongMaterial({ 
+                color: sphereData[key].color,
+                emissive: sphereData[key].color,
+                emissiveIntensity: 0.2
+            });
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.position.set(positions[i].x, positions[i].y, positions[i].z);
+            sphere.userData = { key, ...sphereData[key] };
+            spheres.push(sphere);
+            scene.add(sphere);
+
+            const points = [
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(positions[i].x, positions[i].y, positions[i].z)
+            ];
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+            const lineMaterial = new THREE.LineBasicMaterial({ color: 0xf4c430, opacity: 0.3, transparent: true });
+            const line = new THREE.Line(lineGeometry, lineMaterial);
+            scene.add(line);
+        });
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        
+        const pointLight = new THREE.PointLight(0xf4c430, 1, 100);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let isRotating = true;
+
+        function onMouseClick(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(spheres);
+
+            if (intersects.length > 0) {
+                const clicked = intersects[0].object;
+                showPanel(clicked.userData);
+                isRotating = false;
+                document.getElementById('instructions').style.display = 'none';
+            }
+        }
+
+        function showPanel(data) {
+            const panel = document.getElementById('info-panel');
+            const content = document.getElementById('panel-content');
+            
+            let html = `
+                <div class="info-icon">${data.icon}</div>
+                <h2 class="info-title">${data.title}</h2>
+            `;
+            
+            data.content.forEach(item => {
+                html += `
+                    <div class="info-item">
+                        <h3>${item.title}</h3>
+                        <div class="role">${item.role}</div>
+                        ${item.period ? `<div class="period">${item.period}</div>` : ''}
+                        ${item.details && item.details.length > 0 ? `
+                            <ul>
+                                ${item.details.map(d => `<li>${d}</li>`).join('')}
+                            </ul>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            if (data.title === 'Skills & Passion') {
+                html += `
+                    <div class="madness-quote">
+                        <p>"Trust Your Madness – 40-60% Teilzeit, bereit durchzustarten!"</p>
+                    </div>
+                `;
+            }
+            
+            content.innerHTML = html;
+            panel.classList.add('active');
+        }
+
+        function closePanel() {
+            document.getElementById('info-panel').classList.remove('active');
+            isRotating = true;
+            document.getElementById('instructions').style.display = 'block';
+        }
+
+        window.addEventListener('click', onMouseClick);
+
+        let time = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.01;
+
+            if (isRotating) {
+                centerSphere.rotation.y += 0.005;
+                
+                spheres.forEach((sphere, i) => {
+                    const angle = time + (i * Math.PI / 2);
+                    const radius = 3.5;
+                    sphere.position.x = Math.cos(angle) * radius;
+                    sphere.position.z = Math.sin(angle) * radius;
+                    sphere.rotation.y += 0.01;
+                });
+            }
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        window.addEventListener('resize', onWindowResize);
+    </script>
+</body>
+</html>
