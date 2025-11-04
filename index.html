@@ -31,18 +31,27 @@
             font-size: 4rem;
             font-weight: bold;
             color: #f4c430;
-            text-shadow: 0 0 20px rgba(244, 196, 48, 0.5);
+            -webkit-text-stroke: 0.5px #1a2332;
+            text-shadow: 0 0 20px rgba(244, 196, 48, 0.5), 
+                         1px 1px 2px rgba(26, 35, 50, 0.8),
+                         -1px -1px 2px rgba(26, 35, 50, 0.8);
             margin-bottom: 0.5rem;
         }
         .center-text p {
             font-size: 1.5rem;
             color: #f4c430;
-            opacity: 0.8;
+            -webkit-text-stroke: 0.2px #1a2332;
+            text-shadow: 1px 1px 2px rgba(26, 35, 50, 0.8),
+                         -1px -1px 2px rgba(26, 35, 50, 0.8);
+            display: inline-block;
         }
         .center-text .instruction {
             font-size: 0.9rem;
             opacity: 0.6;
             margin-top: 1rem;
+            background: none;
+            border: none;
+            padding: 0;
         }
         .info-panel {
             position: absolute;
@@ -186,9 +195,9 @@
                 icon: '💼',
                 color: 0xf4c430,
                 content: [
-                    { title: 'Grand Hotel National Luzern', role: 'Event Assistant', period: 'Aug 2024 - Sep 2024', details: ['Event Organisation', 'Menü- & Sitzpläne', 'Raumplanung'] },
-                    { title: 'Migros Luzern', role: 'Allrounder Verkauf', period: 'Apr 2024 - Jul 2025', details: ['Warenpräsentation', 'Kundenberatung', 'Qualitätskontrolle'] },
-                    { title: 'Grand Hotel National', role: 'Praktikant Kaufmann', period: 'Aug 2023 - Jul 2024', details: ['Event Management', 'HR & Finance', 'Rezeption'] }
+                    { title: 'Grand Hotel National', role: 'Praktikant Kaufmann', period: 'Aug 2023 - Jul 2024', details: ['Event Management', 'HR & Finance', 'Rezeption', 'Gastronomie-Service'] },
+                    { title: 'Grand Hotel National Luzern', role: 'Event Assistant (befristet)', period: 'Aug 2024 - Sep 2024', details: ['Event Organisation', 'Menü- & Sitzpläne', 'Raumplanung'] },
+                    { title: 'Migros Luzern', role: 'Allrounder Verkauf', period: 'Apr 2025 - Jul 2025', details: ['Warenpräsentation', 'Kundenberatung', 'Qualitätskontrolle'] }
                 ]
             },
             education: {
@@ -215,9 +224,9 @@
                 icon: '⚡',
                 color: 0xf4c430,
                 content: [
-                    { title: 'Wirtschaftspsychologie', role: 'Arbeitspsychologie, Kundenpsychologie', details: ['Markenverständnis', 'Community Building', 'Kommunikation'] },
-                    { title: 'Event & Hospitality', role: 'Grand Hotel Erfahrung', details: ['Event Management', 'Kundenservice', 'Organisation'] },
-                    { title: 'Leidenschaft', role: 'Marketing, Design, Product Management', details: ['Brand Building', 'Kreativität', 'Jung & hungrig'] }
+                    { title: 'Was mich antreibt', role: 'Meine Motivation', details: ['Neue Dinge lernen & ausprobieren', 'Menschen verstehen & begeistern', 'Marken verstehen & mitgestalten'] },
+                    { title: 'Wirtschaftspsychologie', role: 'Markt- & Kundenpsychologie', details: ['Markenverständnis', 'Community Building', 'Kommunikation'] },
+                    { title: 'Interessen', role: 'Was ich gerne mache', details: ['Festival-Culture & Community', 'Social Media & Design entdecken', 'Sport, Musik, Events'] }
                 ]
             }
         };
